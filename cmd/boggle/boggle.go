@@ -8,25 +8,13 @@ import (
 	"unicode"
 )
 
-type Character struct {
-	character rune
-}
-
 type Position struct {
 	line   int
 	column int
 }
 
 type Boggle struct {
-	grid [4][4]Character
-}
-
-func NewCharacter(character rune) Character {
-	return Character{character: unicode.ToLower(character)}
-}
-
-func (c Character) String() string {
-	return fmt.Sprintf("%c", c.character)
+	grid [4][4]rune
 }
 
 func NewPosition(line, column int) Position {
@@ -45,7 +33,7 @@ func (p Position) String() string {
 	return fmt.Sprintf("(%d, %d)", p.Line(), p.Column())
 }
 
-func NewBoggle(grid [4][4]Character) *Boggle {
+func NewBoggle(grid [4][4]rune) *Boggle {
 	return &Boggle{grid: grid}
 }
 
@@ -55,13 +43,13 @@ func NewBoggleFromFile(path string) (*Boggle, error) {
 		return nil, fmt.Errorf("could not open file %s: %w", path, err)
 	}
 
-	grid := [4][4]Character{}
+	grid := [4][4]rune{}
 	scanner := bufio.NewScanner(gridFile)
 
 	l := 0
 	for scanner.Scan() {
 		for c, character := range strings.TrimSpace(scanner.Text()) {
-			grid[l][c] = NewCharacter(character)
+			grid[l][c] = unicode.ToLower(character)
 		}
 		l += 1
 	}
@@ -73,7 +61,7 @@ func NewBoggleFromFile(path string) (*Boggle, error) {
 	return NewBoggle(grid), nil
 }
 
-func (b *Boggle) Character(position Position) Character {
+func (b *Boggle) Character(position Position) rune {
 	return b.grid[position.Line()][position.Column()]
 }
 
@@ -104,7 +92,7 @@ func (b *Boggle) String() string {
 
 	for l := range b.grid {
 		for c := range b.grid[l] {
-			sb.WriteString(b.grid[l][c].String())
+			sb.WriteRune(b.Character(NewPosition(l, c)))
 		}
 		sb.WriteString("\n")
 	}
